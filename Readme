@@ -1,1 +1,82 @@
-
+Montclair CBT
+A computer-based testing (CBT) and school management portal for Montclair Group of Schools (Oke-Aro & Matogun campuses, Ogun State, Nigeria).
+Students, staff and parents register from any device, the admin approves them, and everyone works from one shared database hosted by a small Node.js server.
+Features
+Student, staff and parent sign-up with passport photo, class, date of birth and more
+Single admin account with approval workflow for new registrations
+Computer-based tests (CBT) with automatic marking
+Bulk question upload from Excel / CSV
+Continuous assessment (CA) marks, attendance and report sheets
+Notices, messages, notifications and a school gallery
+Mobile-friendly interface
+Tech stack
+Layer	Technology
+Frontend	Plain HTML, CSS and JavaScript (no build step)
+Backend	Node.js built-in http module — zero npm dependencies
+Storage	JSON file (db.json) on the server
+Excel	SheetJS loaded from the jsDelivr CDN
+Requires Node.js 18 or newer.
+Project structure
+montclair-cbt/
+├── index.html            # App entry point
+├── package.json          # Root manifest (npm start runs the server)
+├── vercel.json           # Optional: static hosting config for Vercel
+├── assets/               # Logo, banner, gallery images, questions-template.csv
+├── css/styles.css        # Styles
+├── js/app.js             # Frontend application
+└── server/
+    ├── index.js          # Backend + static file server
+    └── package.json
+Run locally
+bash
+git clone <your-repo-url>
+cd montclair-cbt
+npm start
+Open http://localhost:3001
+No npm install is needed because the project has no dependencies. Set a different port with PORT=4000 npm start.
+Deploy on Render
+The server serves both the API and the frontend, so a single Web Service is all you need.
+Important: package.json must be at the root of your repository. If you zip or upload the project, make sure you push the contents of the montclair-cbt folder, not the folder itself.
+1. Create the service
+Push the project to GitHub, GitLab or Bitbucket.
+In the Render dashboard, choose New → Web Service and connect the repository.
+2. Use these settings
+Setting	Value
+Language	Node
+Root Directory	(leave blank)
+Build Command	npm install
+Start Command	npm start
+Health Check Path	/api/health
+Instance Type	Free (or any paid tier)
+Render automatically provides the PORT variable and the server reads it, so there is nothing to configure for networking.
+3. Optional environment variables
+Variable	Purpose	Default
+PORT	Port the server listens on (set by Render)	3001
+DATA_DIR	Folder where db.json is stored	server/data
+NODE_VERSION	Pin the Node.js version, for example 20	Render default
+4. Keep your data safe (persistent disk)
+Render's free instances have an ephemeral filesystem: the database is wiped on every redeploy or restart. To keep data permanently:
+Upgrade the service to a paid instance type.
+Add a Disk under the service's Disks tab with mount path /var/data.
+Add the environment variable DATA_DIR=/var/data.
+Free-tier services also sleep after a period of inactivity, so the first request after a break can take about a minute.
+Uploading questions in bulk
+Upload a .csv or Excel file from the admin / staff question page. The first row must be:
+question,optionA,optionB,optionC,optionD,correct,marks
+correct can be the full answer text or the letter A, B, C or D
+marks is the score awarded for the question
+A sample file is included at assets/questions-template.csv
+Security notes
+There is exactly one admin account. Nobody else can register as admin.
+Passwords are stored as SHA-256 hashes, never in plain text.
+Do not publish admin credentials or the school registration code in this README or in a public repository. Share them privately with the people who need them.
+Back up db.json regularly, especially before redeploying.
+Troubleshooting
+Problem	Fix
+Render: "Could not find package.json"	The repo root is wrong. Push the contents of montclair-cbt, not its parent folder.
+Render: "Port scan timeout / no open ports"	Use Start Command npm start and do not hard-code a port.
+Data disappears after redeploy	You are on the free tier. Attach a disk and set DATA_DIR (see above).
+Users on different phones see different data	The app is being opened as static files. Use the Render URL, not a local index.html.
+Excel upload does nothing	Check your internet connection (SheetJS loads from a CDN) and the column headers.
+License
+Private project for Montclair Group of Schools. All rights reserved.
